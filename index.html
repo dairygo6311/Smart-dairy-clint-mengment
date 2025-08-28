@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Dairy Client Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading-overlay">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Navigation Header (hidden on login screen) -->
+        <header id="nav-header" class="header" style="display: none;">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <i class="fas fa-cow"></i>
+                    Smart Dairy Client Management
+                </div>
+                <button class="nav-toggle" onclick="toggleMobileNav()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="nav-menu" id="nav-menu">
+                    <a href="#" onclick="showScreen('dashboard'); closeMobileNav()" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="#" onclick="showScreen('clients-list'); closeMobileNav()" class="nav-link">
+                        <i class="fas fa-users"></i> Clients
+                    </a>
+                    <a href="#" onclick="logout(); closeMobileNav()" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Screen 1: Admin Login -->
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
+                <div class="login-form">
+                    <div class="login-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h2>Smart Dairy Admin Login</h2>
+                    </div>
+                    <form id="login-form" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                placeholder="admin@smartdairy.com" 
+                                required
+                            >
+                            <span class="error" id="email-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                placeholder="Enter password" 
+                                required
+                                minlength="8"
+                            >
+                            <span class="error" id="password-error"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="login-btn">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                        <a href="#" onclick="handleForgotPassword()" class="forgot-password">
+                            Forgot Password?
+                        </a>
+                    </form>
+                    <div id="login-error" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Dashboard -->
+        <div id="dashboard-screen" class="screen">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-clients">0</h3>
+                            <p>Total Clients</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon active">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="active-clients">0</h3>
+                            <p>Active Clients</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon inactive">
+                            <i class="fas fa-user-times"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="inactive-clients">0</h3>
+                            <p>Inactive Clients</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Actions -->
+                <div class="dashboard-actions">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input 
+                            type="text" 
+                            id="dashboard-search" 
+                            placeholder="Search clients by name, email or mobile..."
+                            oninput="searchClients(this.value)"
+                        >
+                    </div>
+                    <button class="btn btn-primary" onclick="showScreen('add-client')">
+                        <i class="fas fa-plus"></i> Add Client
+                    </button>
+                </div>
+
+                <!-- Clients Table -->
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>Client Name</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-clients-tbody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="dashboard-no-clients" class="no-data" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <p>No clients found</p>
+                    </div>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="mobile-card-view">
+                    <div id="dashboard-mobile-cards">
+                        <!-- Dynamic mobile cards -->
+                    </div>
+                    <div id="dashboard-no-clients-mobile" class="no-data" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <p>No clients found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Add Client -->
+        <div id="add-client-screen" class="screen">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Add Client</h1>
+                    <button class="btn btn-secondary" onclick="showScreen('dashboard')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                
+                <div class="form-container">
+                    <form id="add-client-form" onsubmit="handleAddClient(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="client-name">Client Name *</label>
+                                <input 
+                                    type="text" 
+                                    id="client-name" 
+                                    placeholder="Enter client name" 
+                                    required
+                                >
+                                <span class="error" id="client-name-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="client-mobile">Client Mobile *</label>
+                                <input 
+                                    type="tel" 
+                                    id="client-mobile" 
+                                    placeholder="+919876543210" 
+                                    required
+                                    pattern="^\+91[0-9]{10}$"
+                                >
+                                <span class="error" id="client-mobile-error"></span>
+                                <small>Format: +91xxxxxxxxxx</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="client-email">Client Email *</label>
+                                <input 
+                                    type="email" 
+                                    id="client-email" 
+                                    placeholder="client@example.com" 
+                                    required
+                                >
+                                <span class="error" id="client-email-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="client-admin-link">Client Admin Link</label>
+                                <input 
+                                    type="url" 
+                                    id="client-admin-link" 
+                                    placeholder="https://admin.client.com"
+                                >
+                                <span class="error" id="client-admin-link-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="client-firebase-email">Client Firebase Email / ID</label>
+                            <input 
+                                type="text" 
+                                id="client-firebase-email" 
+                                placeholder="firebase@client.com or firebase-user-id"
+                            >
+                            <span class="error" id="client-firebase-email-error"></span>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="showScreen('dashboard')">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="save-client-btn">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Clients List -->
+        <div id="clients-list-screen" class="screen">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Clients</h1>
+                    <button class="btn btn-primary" onclick="showScreen('add-client')">
+                        <i class="fas fa-plus"></i> Add Client
+                    </button>
+                </div>
+
+                <!-- Search -->
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input 
+                        type="text" 
+                        id="clients-search" 
+                        placeholder="Search by name, mobile, email..."
+                        oninput="searchClientsInList(this.value)"
+                    >
+                </div>
+
+                <!-- Clients Table -->
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Admin Link</th>
+                                    <th>Firebase Email/ID</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-list-tbody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="clients-list-no-data" class="no-data" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <p>No clients found</p>
+                    </div>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="mobile-card-view">
+                    <div id="clients-list-mobile-cards">
+                        <!-- Dynamic mobile cards -->
+                    </div>
+                    <div id="clients-list-no-data-mobile" class="no-data" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <p>No clients found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Client Details -->
+        <div id="client-details-screen" class="screen">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Client Details</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="showScreen('clients-list')">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="btn btn-primary" onclick="editCurrentClient()">
+                            <i class="fas fa-edit"></i> Edit Client
+                        </button>
+                    </div>
+                </div>
+
+                <div class="details-container">
+                    <div class="details-card">
+                        <div class="details-header">
+                            <div class="client-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="client-basic-info">
+                                <h2 id="details-client-name">-</h2>
+                                <p id="details-client-status" class="status-badge">-</p>
+                            </div>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>Mobile</label>
+                                <p id="details-client-mobile">-</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Email</label>
+                                <p id="details-client-email">-</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Admin Link</label>
+                                <p id="details-client-admin-link">-</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Firebase Email / ID</label>
+                                <p id="details-client-firebase-email">-</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Created At</label>
+                                <p id="details-client-created">-</p>
+                            </div>
+                            <div class="detail-item">
+                                <label>Updated At</label>
+                                <p id="details-client-updated">-</p>
+                            </div>
+                        </div>
+                        
+                        <div class="details-actions">
+                            <button class="btn btn-warning" onclick="toggleClientStatus()">
+                                <i class="fas fa-toggle-on"></i> 
+                                <span id="toggle-status-text">Deactivate</span>
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteCurrentClient()">
+                                <i class="fas fa-trash"></i> Delete Client
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Edit Client -->
+        <div id="edit-client-screen" class="screen">
+            <div class="container">
+                <div class="page-header">
+                    <h1>Edit Client</h1>
+                    <button class="btn btn-secondary" onclick="showScreen('client-details')">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                
+                <div class="form-container">
+                    <form id="edit-client-form" onsubmit="handleEditClient(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-client-name">Client Name *</label>
+                                <input 
+                                    type="text" 
+                                    id="edit-client-name" 
+                                    placeholder="Enter client name" 
+                                    required
+                                >
+                                <span class="error" id="edit-client-name-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-client-mobile">Client Mobile *</label>
+                                <input 
+                                    type="tel" 
+                                    id="edit-client-mobile" 
+                                    placeholder="+919876543210" 
+                                    required
+                                    pattern="^\+91[0-9]{10}$"
+                                >
+                                <span class="error" id="edit-client-mobile-error"></span>
+                                <small>Format: +91xxxxxxxxxx</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-client-email">Client Email *</label>
+                                <input 
+                                    type="email" 
+                                    id="edit-client-email" 
+                                    placeholder="client@example.com" 
+                                    required
+                                >
+                                <span class="error" id="edit-client-email-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-client-admin-link">Client Admin Link</label>
+                                <input 
+                                    type="url" 
+                                    id="edit-client-admin-link" 
+                                    placeholder="https://admin.client.com"
+                                >
+                                <span class="error" id="edit-client-admin-link-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-client-firebase-email">Client Firebase Email / ID</label>
+                            <input 
+                                type="text" 
+                                id="edit-client-firebase-email" 
+                                placeholder="firebase@client.com or firebase-user-id"
+                            >
+                            <span class="error" id="edit-client-firebase-email-error"></span>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="showScreen('client-details')">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="update-client-btn">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="clients.js"></script>
+    <script type="module" src="utils.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
