@@ -64,10 +64,8 @@ window.showScreen = function(screenId) {
     if (targetScreen) {
         targetScreen.classList.add('active');
         
-        // Load data for specific screens
-        if (screenId === 'dashboard') {
-            window.loadDashboardData();
-        } else if (screenId === 'clients-list') {
+        // Load data for specific screens (only if not already loading)
+        if (screenId === 'clients-list') {
             window.loadClientsList();
         }
     }
@@ -254,14 +252,14 @@ window.logger = {
 
 // Mobile Navigation Functions
 window.toggleMobileNav = function() {
-    const navMenu = document.getElementById('nav-menu');
-    const navToggle = document.querySelector('.nav-toggle i');
+    const mobileNav = document.getElementById('mobile-nav');
+    const navToggle = document.querySelector('button i');
     
-    if (navMenu) {
-        navMenu.classList.toggle('active');
+    if (mobileNav) {
+        mobileNav.classList.toggle('hidden');
         
         // Change hamburger to X and vice versa
-        if (navMenu.classList.contains('active')) {
+        if (!mobileNav.classList.contains('hidden')) {
             navToggle.className = 'fas fa-times';
         } else {
             navToggle.className = 'fas fa-bars';
@@ -270,12 +268,14 @@ window.toggleMobileNav = function() {
 };
 
 window.closeMobileNav = function() {
-    const navMenu = document.getElementById('nav-menu');
-    const navToggle = document.querySelector('.nav-toggle i');
+    const mobileNav = document.getElementById('mobile-nav');
+    const navToggle = document.querySelector('button i');
     
-    if (navMenu) {
-        navMenu.classList.remove('active');
-        navToggle.className = 'fas fa-bars';
+    if (mobileNav) {
+        mobileNav.classList.add('hidden');
+        if (navToggle) {
+            navToggle.className = 'fas fa-bars';
+        }
     }
 };
 
@@ -283,13 +283,13 @@ window.closeMobileNav = function() {
 document.addEventListener('DOMContentLoaded', function() {
     // Close mobile menu when clicking outside
     document.addEventListener('click', function(event) {
-        const navMenu = document.getElementById('nav-menu');
-        const navToggle = document.querySelector('.nav-toggle');
+        const mobileNav = document.getElementById('mobile-nav');
+        const navToggle = document.querySelector('header button');
         
-        if (navMenu && navToggle && 
-            !navMenu.contains(event.target) && 
+        if (mobileNav && navToggle && 
+            !mobileNav.contains(event.target) && 
             !navToggle.contains(event.target) &&
-            navMenu.classList.contains('active')) {
+            !mobileNav.classList.contains('hidden')) {
             closeMobileNav();
         }
     });
@@ -298,8 +298,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             // Close mobile menu
-            const navMenu = document.getElementById('nav-menu');
-            if (navMenu && navMenu.classList.contains('active')) {
+            const mobileNav = document.getElementById('mobile-nav');
+            if (mobileNav && !mobileNav.classList.contains('hidden')) {
                 closeMobileNav();
             }
             

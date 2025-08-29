@@ -30,9 +30,15 @@ window.loadDashboardData = async function() {
         const activeClients = clients.filter(client => client.status === 'active').length;
         const inactiveClients = totalClients - activeClients;
         
-        document.getElementById('total-clients').textContent = totalClients;
-        document.getElementById('active-clients').textContent = activeClients;
-        document.getElementById('inactive-clients').textContent = inactiveClients;
+        // Update dashboard statistics with animations
+        if (window.dashboardAnimations) {
+            window.dashboardAnimations.updateStats(totalClients, activeClients, inactiveClients);
+        } else {
+            // Fallback without animations
+            document.getElementById('total-clients').textContent = totalClients;
+            document.getElementById('active-clients').textContent = activeClients;
+            document.getElementById('inactive-clients').textContent = inactiveClients;
+        }
         
         // Update dashboard table
         updateDashboardTable(clients);
@@ -215,7 +221,7 @@ window.handleAddClient = async function(event) {
         
         // Reset form and show success
         document.getElementById('add-client-form').reset();
-        alert('Client added successfully!');
+        showNotification('Client added successfully!', 'success');
         
         // Navigate back to dashboard and refresh data
         showScreen('dashboard');
@@ -223,7 +229,7 @@ window.handleAddClient = async function(event) {
         
     } catch (error) {
         console.error('Error adding client:', error);
-        alert('Failed to add client. Please try again.');
+        showNotification('Failed to add client. Please try again.', 'error');
     } finally {
         // Reset button state
         saveBtn.disabled = false;
@@ -316,7 +322,7 @@ window.loadClientsList = async function() {
         updateClientsListTable(clients);
     } catch (error) {
         console.error('Error loading clients list:', error);
-        alert('Failed to load clients list');
+        showNotification('Failed to load clients list', 'error');
     } finally {
         hideLoading();
     }
@@ -436,7 +442,7 @@ window.viewClient = async function(clientId) {
         const client = await getClientById(clientId);
         
         if (!client) {
-            alert('Client not found');
+            showNotification('Client not found', 'error');
             return;
         }
         
@@ -446,7 +452,7 @@ window.viewClient = async function(clientId) {
         
     } catch (error) {
         console.error('Error viewing client:', error);
-        alert('Failed to load client details');
+        showNotification('Failed to load client details', 'error');
     } finally {
         hideLoading();
     }
@@ -507,7 +513,7 @@ window.editClient = async function(clientId) {
         const client = await getClientById(clientId);
         
         if (!client) {
-            alert('Client not found');
+            showNotification('Client not found', 'error');
             return;
         }
         
@@ -517,7 +523,7 @@ window.editClient = async function(clientId) {
         
     } catch (error) {
         console.error('Error loading client for edit:', error);
-        alert('Failed to load client data');
+        showNotification('Failed to load client data', 'error');
     } finally {
         hideLoading();
     }
@@ -537,7 +543,7 @@ window.handleEditClient = async function(event) {
     event.preventDefault();
     
     if (!currentClient) {
-        alert('No client selected for editing');
+        showNotification('No client selected for editing', 'error');
         return;
     }
     
@@ -573,7 +579,7 @@ window.handleEditClient = async function(event) {
         await updateDoc(docRef, updatedData);
         
         console.log('Client updated successfully');
-        alert('Client updated successfully!');
+        showNotification('Client updated successfully!', 'success');
         
         // Update current client and navigate to details
         currentClient = { ...currentClient, ...updatedData };
@@ -585,7 +591,7 @@ window.handleEditClient = async function(event) {
         
     } catch (error) {
         console.error('Error updating client:', error);
-        alert('Failed to update client. Please try again.');
+        showNotification('Failed to update client. Please try again.', 'error');
     } finally {
         // Reset button state
         updateBtn.disabled = false;
@@ -619,7 +625,7 @@ function clearEditClientErrors() {
 // Toggle client status (from details screen)
 window.toggleClientStatus = async function() {
     if (!currentClient) {
-        alert('No client selected');
+        showNotification('No client selected', 'error');
         return;
     }
     
@@ -645,7 +651,7 @@ window.toggleClientStatus = async function() {
         
     } catch (error) {
         console.error('Error updating client status:', error);
-        alert('Failed to update client status');
+        showNotification('Failed to update client status', 'error');
     } finally {
         hideLoading();
     }
@@ -658,7 +664,7 @@ window.toggleClientStatusFromDashboard = async function(clientId) {
         
         const client = await getClientById(clientId);
         if (!client) {
-            alert('Client not found');
+            showNotification('Client not found', 'error');
             return;
         }
         
@@ -677,7 +683,7 @@ window.toggleClientStatusFromDashboard = async function(clientId) {
         
     } catch (error) {
         console.error('Error updating client status from dashboard:', error);
-        alert('Failed to update client status');
+        showNotification('Failed to update client status', 'error');
     } finally {
         hideLoading();
     }
@@ -690,7 +696,7 @@ window.toggleClientStatusFromList = async function(clientId) {
         
         const client = await getClientById(clientId);
         if (!client) {
-            alert('Client not found');
+            showNotification('Client not found', 'error');
             return;
         }
         
@@ -710,7 +716,7 @@ window.toggleClientStatusFromList = async function(clientId) {
         
     } catch (error) {
         console.error('Error updating client status from list:', error);
-        alert('Failed to update client status');
+        showNotification('Failed to update client status', 'error');
     } finally {
         hideLoading();
     }
@@ -750,7 +756,7 @@ async function deleteClient(clientId) {
 
 // Delete client from dashboard
 window.deleteClientFromDashboard = async function(clientId, clientName) {
-    const confirmed = confirm(`Are you sure you want to permanently delete "${clientName}"?\n\nThis action cannot be undone.`);
+    const confirmed = confirm(`Are you sure you want to permanently delete "${escapeHtml(clientName)}"?\n\nThis action cannot be undone.`);
     
     if (!confirmed) {
         return;
@@ -758,20 +764,20 @@ window.deleteClientFromDashboard = async function(clientId, clientName) {
     
     try {
         await deleteClient(clientId);
-        alert('Client deleted successfully!');
+        showNotification('Client deleted successfully!', 'success');
         
         // Refresh dashboard data
         loadDashboardData();
         
     } catch (error) {
         console.error('Error deleting client from dashboard:', error);
-        alert('Failed to delete client. Please try again.');
+        showNotification('Failed to delete client. Please try again.', 'error');
     }
 };
 
 // Delete client from list
 window.deleteClientFromList = async function(clientId, clientName) {
-    const confirmed = confirm(`Are you sure you want to permanently delete "${clientName}"?\n\nThis action cannot be undone.`);
+    const confirmed = confirm(`Are you sure you want to permanently delete "${escapeHtml(clientName)}"?\n\nThis action cannot be undone.`);
     
     if (!confirmed) {
         return;
@@ -779,7 +785,7 @@ window.deleteClientFromList = async function(clientId, clientName) {
     
     try {
         await deleteClient(clientId);
-        alert('Client deleted successfully!');
+        showNotification('Client deleted successfully!', 'success');
         
         // Refresh clients list and dashboard data
         loadClientsList();
@@ -787,18 +793,18 @@ window.deleteClientFromList = async function(clientId, clientName) {
         
     } catch (error) {
         console.error('Error deleting client from list:', error);
-        alert('Failed to delete client. Please try again.');
+        showNotification('Failed to delete client. Please try again.', 'error');
     }
 };
 
 // Delete current client (from details screen)
 window.deleteCurrentClient = async function() {
     if (!currentClient) {
-        alert('No client selected');
+        showNotification('No client selected', 'error');
         return;
     }
     
-    const confirmed = confirm(`Are you sure you want to permanently delete "${currentClient.name}"?\n\nThis action cannot be undone.`);
+    const confirmed = confirm(`Are you sure you want to permanently delete "${escapeHtml(currentClient.name)}"?\n\nThis action cannot be undone.`);
     
     if (!confirmed) {
         return;
@@ -806,7 +812,7 @@ window.deleteCurrentClient = async function() {
     
     try {
         await deleteClient(currentClient.id);
-        alert('Client deleted successfully!');
+        showNotification('Client deleted successfully!', 'success');
         
         // Navigate back to clients list and refresh data
         showScreen('clients-list');
@@ -818,6 +824,6 @@ window.deleteCurrentClient = async function() {
         
     } catch (error) {
         console.error('Error deleting current client:', error);
-        alert('Failed to delete client. Please try again.');
+        showNotification('Failed to delete client. Please try again.', 'error');
     }
 };

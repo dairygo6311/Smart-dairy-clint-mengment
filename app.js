@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add form validation helpers
     addFormValidationHelpers();
     
+    // Initialize theme toggle in header
+    initializeThemeToggle();
+    
+    // Make functions globally available
+    window.showThemeDemo = showThemeDemo;
+    window.closeThemeDemo = closeThemeDemo;
+    
     console.log('Smart Dairy Application initialized successfully');
 });
 
@@ -100,43 +107,83 @@ function handleEscapeKey(screenId) {
 
 // Add form validation helpers
 function addFormValidationHelpers() {
+    // Clear existing validation listeners to prevent memory leaks
+    clearValidationListeners();
+    
     // Real-time validation for mobile numbers
     const mobileInputs = document.querySelectorAll('input[type="tel"]');
     mobileInputs.forEach(input => {
-        input.addEventListener('input', function() {
+        // Remove existing listener if any
+        if (input.validationHandler) {
+            input.removeEventListener('input', input.validationHandler);
+        }
+        
+        input.validationHandler = function() {
             const value = this.value;
             if (value && !window.validateMobileE164(value)) {
                 this.style.borderColor = '#dc3545';
             } else {
                 this.style.borderColor = '#e1e5e9';
             }
-        });
+        };
+        input.addEventListener('input', input.validationHandler);
     });
     
     // Real-time validation for email addresses
     const emailInputs = document.querySelectorAll('input[type="email"]');
     emailInputs.forEach(input => {
-        input.addEventListener('blur', function() {
+        // Remove existing listener if any
+        if (input.emailValidationHandler) {
+            input.removeEventListener('blur', input.emailValidationHandler);
+        }
+        
+        input.emailValidationHandler = function() {
             const value = this.value;
             if (value && !window.validateEmail(value)) {
                 this.style.borderColor = '#dc3545';
             } else {
                 this.style.borderColor = '#e1e5e9';
             }
-        });
+        };
+        input.addEventListener('blur', input.emailValidationHandler);
     });
     
     // Real-time validation for URL fields
     const urlInputs = document.querySelectorAll('input[type="url"]');
     urlInputs.forEach(input => {
-        input.addEventListener('blur', function() {
+        // Remove existing listener if any
+        if (input.urlValidationHandler) {
+            input.removeEventListener('blur', input.urlValidationHandler);
+        }
+        
+        input.urlValidationHandler = function() {
             const value = this.value;
             if (value && !window.validateUrl(value)) {
                 this.style.borderColor = '#dc3545';
             } else {
                 this.style.borderColor = '#e1e5e9';
             }
-        });
+        };
+        input.addEventListener('blur', input.urlValidationHandler);
+    });
+}
+
+// Clear validation listeners to prevent memory leaks
+function clearValidationListeners() {
+    const allInputs = document.querySelectorAll('input[type="tel"], input[type="email"], input[type="url"]');
+    allInputs.forEach(input => {
+        if (input.validationHandler) {
+            input.removeEventListener('input', input.validationHandler);
+            input.validationHandler = null;
+        }
+        if (input.emailValidationHandler) {
+            input.removeEventListener('blur', input.emailValidationHandler);
+            input.emailValidationHandler = null;
+        }
+        if (input.urlValidationHandler) {
+            input.removeEventListener('blur', input.urlValidationHandler);
+            input.urlValidationHandler = null;
+        }
     });
 }
 
@@ -428,5 +475,52 @@ window.addEventListener('load', function() {
         console.log(`Page load time: ${loadTime}ms`);
     }
 });
+
+// Initialize theme toggle
+function initializeThemeToggle() {
+    // Create main theme toggle for header
+    createThemeToggle({
+        showLabel: false,
+        variant: 'circle',
+        start: 'center',
+        container: '#header-theme-toggle'
+    });
+}
+
+// Add demo page functionality
+function showThemeDemo() {
+    // Create a demo container
+    const demoContainer = document.createElement('div');
+    demoContainer.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-primary); z-index: 10000; overflow-y: auto;">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 30px;">
+                    <h1 style="color: var(--text-primary); font-size: 2rem; font-weight: bold;">Animated Theme Toggles Demo</h1>
+                    <button onclick="closeThemeDemo()" style="background: var(--bg-secondary); border: 2px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-left: auto;">
+                        <i class="fas fa-times"></i> Close Demo
+                    </button>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 1.1rem;">
+                    Click any toggle to switch between light and dark themes with beautiful animations
+                </p>
+                <div id="theme-demo-container">
+                    <!-- Demo toggles will be inserted here -->
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(demoContainer);
+    
+    // Create all demo toggles
+    createThemeTogglesDemo('#theme-demo-container');
+};
+
+function closeThemeDemo() {
+    const demoContainer = document.querySelector('div[style*="z-index: 10000"]');
+    if (demoContainer) {
+        demoContainer.remove();
+    }
+};
 
 console.log('App.js loaded successfully');

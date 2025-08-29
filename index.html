@@ -4,6 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Dairy Client Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(214.3 31.8% 91.4%)",
+                        input: "hsl(214.3 31.8% 91.4%)",
+                        ring: "hsl(222.2 84% 4.9%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(222.2 84% 4.9%)",
+                        primary: {
+                            DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 40% 96%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(210 40% 96%)",
+                            foreground: "hsl(215.4 16.3% 46.9%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(210 40% 96%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        popover: {
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                    },
+                    borderRadius: {
+                        lg: "0.5rem",
+                        md: "calc(0.5rem - 2px)",
+                        sm: "calc(0.5rem - 4px)",
+                    },
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -15,157 +64,257 @@
         </div>
 
         <!-- Navigation Header (hidden on login screen) -->
-        <header id="nav-header" class="header" style="display: none;">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <i class="fas fa-cow"></i>
-                    Smart Dairy Client Management
+        <header id="nav-header" class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm" style="display: none;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-3">
+                        <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+                            <i class="fas fa-cow text-primary"></i>
+                        </div>
+                        <h1 class="text-xl font-semibold text-foreground hidden sm:block">Smart Dairy Client Management</h1>
+                        <h1 class="text-xl font-semibold text-foreground sm:hidden">Smart Dairy</h1>
+                    </div>
+                    <div class="theme-toggle-container" id="header-theme-toggle">
+                        <!-- Theme toggle will be inserted here -->
+                    </div>
+                    <button class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" onclick="toggleMobileNav()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <nav class="hidden md:flex items-center space-x-1" id="nav-menu">
+                        <a href="#" onclick="showScreen('dashboard'); closeMobileNav()" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="#" onclick="showScreen('clients-list'); closeMobileNav()" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200">
+                            <i class="fas fa-users"></i> Clients
+                        </a>
+                        <a href="#" onclick="showThemeDemo(); closeMobileNav()" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200">
+                            <i class="fas fa-palette"></i> Theme Demo
+                        </a>
+                        <a href="#" onclick="logout(); closeMobileNav()" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-destructive hover:text-destructive-foreground hover:bg-destructive/10 transition-all duration-200">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </nav>
                 </div>
-                <button class="nav-toggle" onclick="toggleMobileNav()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <nav class="nav-menu" id="nav-menu">
-                    <a href="#" onclick="showScreen('dashboard'); closeMobileNav()" class="nav-link">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
-                    <a href="#" onclick="showScreen('clients-list'); closeMobileNav()" class="nav-link">
-                        <i class="fas fa-users"></i> Clients
-                    </a>
-                    <a href="#" onclick="logout(); closeMobileNav()" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                </nav>
+                <!-- Mobile navigation menu -->
+                <div class="md:hidden hidden" id="mobile-nav">
+                    <div class="px-2 pt-2 pb-3 space-y-1 border-t border-border">
+                        <a href="#" onclick="showScreen('dashboard'); closeMobileNav()" class="block px-3 py-2 text-base font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                        </a>
+                        <a href="#" onclick="showScreen('clients-list'); closeMobileNav()" class="block px-3 py-2 text-base font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                            <i class="fas fa-users mr-2"></i> Clients
+                        </a>
+                        <a href="#" onclick="showThemeDemo(); closeMobileNav()" class="block px-3 py-2 text-base font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                            <i class="fas fa-palette mr-2"></i> Theme Demo
+                        </a>
+                        <a href="#" onclick="logout(); closeMobileNav()" class="block px-3 py-2 text-base font-medium rounded-md text-destructive hover:text-destructive-foreground hover:bg-destructive/10 transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
             </div>
         </header>
 
         <!-- Screen 1: Admin Login -->
         <div id="login-screen" class="screen active">
-            <div class="login-container">
-                <div class="login-form">
-                    <div class="login-header">
-                        <i class="fas fa-shield-alt"></i>
-                        <h2>Smart Dairy Admin Login</h2>
+            <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+                <div class="w-full max-w-md">
+                    <div class="rounded-lg border bg-card text-card-foreground shadow-lg">
+                        <div class="flex flex-col space-y-1.5 p-6 text-center">
+                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mx-auto mb-4">
+                                <i class="fas fa-shield-alt text-primary text-xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-semibold leading-none tracking-tight">Smart Dairy Admin</h2>
+                            <p class="text-sm text-muted-foreground">Sign in to manage your clients</p>
+                        </div>
+                        <form id="login-form" onsubmit="handleLogin(event)" class="p-6 pt-0 space-y-4">
+                            <div class="space-y-2">
+                                <label for="email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    placeholder="admin@smartdairy.com" 
+                                    required
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                <span class="error text-destructive text-sm" id="email-error"></span>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    placeholder="Enter password" 
+                                    required
+                                    minlength="8"
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                <span class="error text-destructive text-sm" id="password-error"></span>
+                            </div>
+                            <button type="submit" id="login-btn" class="group relative inline-flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-gradient-to-r from-slate-900 to-slate-700 text-white rounded-lg border border-slate-200/20 shadow-sm transition-all duration-200 ease-out hover:shadow-lg hover:shadow-slate-900/25 hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Sign In</span>
+                                <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:animate-pulse"></div>
+                            </button>
+                            <div class="text-center">
+                                <a href="#" onclick="handleForgotPassword()" class="text-sm text-primary hover:underline transition-colors">
+                                    Forgot Password?
+                                </a>
+                            </div>
+                        </form>
+                        <div id="login-error" class="px-6 pb-6">
+                            <!-- Error messages will be shown here -->
+                        </div>
                     </div>
-                    <form id="login-form" onsubmit="handleLogin(event)">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                placeholder="admin@smartdairy.com" 
-                                required
-                            >
-                            <span class="error" id="email-error"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                placeholder="Enter password" 
-                                required
-                                minlength="8"
-                            >
-                            <span class="error" id="password-error"></span>
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="login-btn">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </button>
-                        <a href="#" onclick="handleForgotPassword()" class="forgot-password">
-                            Forgot Password?
-                        </a>
-                    </form>
-                    <div id="login-error" class="error-message"></div>
                 </div>
             </div>
         </div>
 
         <!-- Screen 2: Dashboard -->
         <div id="dashboard-screen" class="screen">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Dashboard</h1>
-                </div>
-                
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
+            <div class="min-h-screen bg-slate-50/50 pt-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold text-foreground">Dashboard</h1>
+                        <p class="text-muted-foreground mt-2">Manage your client relationships efficiently</p>
+                    </div>
+                    
+                    <!-- Error Display -->
+                    <div id="dashboard-error" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" style="display: none;">
+                        <!-- Dashboard error messages will be shown here -->
+                    </div>
+                    
+                    <!-- Advanced Stats Cards -->
+                    <div class="stats-grid-advanced mb-8">
+                        <div class="stat-card-advanced" data-animation-delay="0">
+                            <div class="stat-card-background"></div>
+                            <div class="stat-card-content">
+                                <div class="stat-icon-advanced">
+                                    <i class="fas fa-users"></i>
+                                    <div class="icon-particles"></div>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">Total Clients</p>
+                                    <div class="stat-number" id="total-clients" data-target="0">0</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-bar" id="total-progress"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-glow"></div>
                         </div>
-                        <div class="stat-content">
-                            <h3 id="total-clients">0</h3>
-                            <p>Total Clients</p>
+                        
+                        <div class="stat-card-advanced" data-animation-delay="200">
+                            <div class="stat-card-background"></div>
+                            <div class="stat-card-content">
+                                <div class="stat-icon-advanced stat-icon-success">
+                                    <i class="fas fa-user-check"></i>
+                                    <div class="icon-particles"></div>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">Active Clients</p>
+                                    <div class="stat-number" id="active-clients" data-target="0">0</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-bar stat-progress-success" id="active-progress"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-glow stat-glow-success"></div>
+                        </div>
+                        
+                        <div class="stat-card-advanced" data-animation-delay="400">
+                            <div class="stat-card-background"></div>
+                            <div class="stat-card-content">
+                                <div class="stat-icon-advanced stat-icon-warning">
+                                    <i class="fas fa-user-times"></i>
+                                    <div class="icon-particles"></div>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">Inactive Clients</p>
+                                    <div class="stat-number" id="inactive-clients" data-target="0">0</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-bar stat-progress-warning" id="inactive-progress"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-glow stat-glow-warning"></div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon active">
-                            <i class="fas fa-user-check"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="active-clients">0</h3>
-                            <p>Active Clients</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon inactive">
-                            <i class="fas fa-user-times"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="inactive-clients">0</h3>
-                            <p>Inactive Clients</p>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Search and Actions -->
-                <div class="dashboard-actions">
-                    <div class="search-container">
-                        <i class="fas fa-search"></i>
-                        <input 
-                            type="text" 
-                            id="dashboard-search" 
-                            placeholder="Search clients by name, email or mobile..."
-                            oninput="searchClients(this.value)"
-                        >
+                    <!-- Search and Actions -->
+                    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+                        <div class="relative flex-1 max-w-md">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
+                            <input 
+                                type="text" 
+                                id="dashboard-search" 
+                                placeholder="Search clients by name, email or mobile..."
+                                oninput="searchClients(this.value)"
+                                class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                        </div>
+                        <button onclick="showScreen('add-client')" class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-gradient-to-r from-slate-900 to-slate-700 text-white rounded-lg border border-slate-200/20 shadow-sm transition-all duration-200 ease-out hover:shadow-lg hover:shadow-slate-900/25 hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Client</span>
+                            <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:animate-pulse"></div>
+                        </button>
                     </div>
-                    <button class="btn btn-primary" onclick="showScreen('add-client')">
-                        <i class="fas fa-plus"></i> Add Client
-                    </button>
-                </div>
 
-                <!-- Clients Table -->
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table class="clients-table">
-                            <thead>
-                                <tr>
-                                    <th>Client Name</th>
-                                    <th>Mobile</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dashboard-clients-tbody">
-                                <!-- Dynamic content -->
-                            </tbody>
-                        </table>
+                    <!-- Enhanced Clients Table -->
+                    <div class="dashboard-table-container">
+                        <div class="table-header">
+                            <h2 class="table-title">Recent Clients</h2>
+                            <div class="table-actions">
+                                <button onclick="loadDashboardData()" class="refresh-btn">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="enhanced-table-wrapper">
+                            <div class="table-content">
+                                <table class="enhanced-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client Name</th>
+                                            <th class="hidden md:table-cell">Mobile</th>
+                                            <th class="hidden lg:table-cell">Email</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-clients-tbody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="dashboard-no-clients" class="empty-state" style="display: none;">
+                                <div class="empty-state-content">
+                                    <div class="empty-state-icon">
+                                        <i class="fas fa-users"></i>
+                                        <div class="icon-pulse"></div>
+                                    </div>
+                                    <h3 class="empty-state-title">No clients found</h3>
+                                    <p class="empty-state-description">Get started by adding your first client to the system.</p>
+                                    <button onclick="showScreen('add-client')" class="empty-state-action">
+                                        <i class="fas fa-plus"></i> Add First Client
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="dashboard-no-clients" class="no-data" style="display: none;">
-                        <i class="fas fa-users"></i>
-                        <p>No clients found</p>
-                    </div>
-                </div>
 
-                <!-- Mobile Card View -->
-                <div class="mobile-card-view">
-                    <div id="dashboard-mobile-cards">
-                        <!-- Dynamic mobile cards -->
-                    </div>
-                    <div id="dashboard-no-clients-mobile" class="no-data" style="display: none;">
-                        <i class="fas fa-users"></i>
-                        <p>No clients found</p>
+                    <!-- Mobile Card View -->
+                    <div class="block md:hidden mt-6">
+                        <div id="dashboard-mobile-cards" class="space-y-4">
+                            <!-- Dynamic mobile cards -->
+                        </div>
+                        <div id="dashboard-no-clients-mobile" class="flex flex-col items-center justify-center py-16 text-center" style="display: none;">
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+                                <i class="fas fa-users text-2xl text-muted-foreground"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground mb-2">No clients found</h3>
+                            <p class="text-muted-foreground">Get started by adding your first client.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -173,141 +322,169 @@
 
         <!-- Screen 3: Add Client -->
         <div id="add-client-screen" class="screen">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Add Client</h1>
-                    <button class="btn btn-secondary" onclick="showScreen('dashboard')">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                </div>
-                
-                <div class="form-container">
-                    <form id="add-client-form" onsubmit="handleAddClient(event)">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="client-name">Client Name *</label>
-                                <input 
-                                    type="text" 
-                                    id="client-name" 
-                                    placeholder="Enter client name" 
-                                    required
-                                >
-                                <span class="error" id="client-name-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label for="client-mobile">Client Mobile *</label>
-                                <input 
-                                    type="tel" 
-                                    id="client-mobile" 
-                                    placeholder="+919876543210" 
-                                    required
-                                    pattern="^\+91[0-9]{10}$"
-                                >
-                                <span class="error" id="client-mobile-error"></span>
-                                <small>Format: +91xxxxxxxxxx</small>
-                            </div>
+            <div class="min-h-screen bg-slate-50/50 pt-16">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-foreground">Add Client</h1>
+                            <p class="text-muted-foreground mt-2">Create a new client profile</p>
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="client-email">Client Email *</label>
-                                <input 
-                                    type="email" 
-                                    id="client-email" 
-                                    placeholder="client@example.com" 
-                                    required
-                                >
-                                <span class="error" id="client-email-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label for="client-admin-link">Client Admin Link</label>
-                                <input 
-                                    type="url" 
-                                    id="client-admin-link" 
-                                    placeholder="https://admin.client.com"
-                                >
-                                <span class="error" id="client-admin-link-error"></span>
-                            </div>
+                        <button onclick="showScreen('dashboard')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                    </div>
+                    
+                    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                        <div class="p-6">
+                            <form id="add-client-form" onsubmit="handleAddClient(event)" class="space-y-6">
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label for="client-name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Client Name *</label>
+                                        <input 
+                                            type="text" 
+                                            id="client-name" 
+                                            placeholder="Enter client name" 
+                                            required
+                                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                        <span class="error text-destructive text-sm" id="client-name-error"></span>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="client-mobile" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Client Mobile *</label>
+                                        <input 
+                                            type="tel" 
+                                            id="client-mobile" 
+                                            placeholder="+919876543210" 
+                                            required
+                                            pattern="^\+91[0-9]{10}$"
+                                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                        <span class="error text-destructive text-sm" id="client-mobile-error"></span>
+                                        <p class="text-sm text-muted-foreground">Format: +91xxxxxxxxxx</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label for="client-email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Client Email *</label>
+                                        <input 
+                                            type="email" 
+                                            id="client-email" 
+                                            placeholder="client@example.com" 
+                                            required
+                                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                        <span class="error text-destructive text-sm" id="client-email-error"></span>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="client-admin-link" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Client Admin Link</label>
+                                        <input 
+                                            type="url" 
+                                            id="client-admin-link" 
+                                            placeholder="https://admin.client.com"
+                                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                        <span class="error text-destructive text-sm" id="client-admin-link-error"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <label for="client-firebase-email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Client Firebase Email / ID</label>
+                                    <input 
+                                        type="text" 
+                                        id="client-firebase-email" 
+                                        placeholder="firebase@client.com or firebase-user-id"
+                                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                    <span class="error text-destructive text-sm" id="client-firebase-email-error"></span>
+                                </div>
+                                
+                                <div class="flex flex-col sm:flex-row gap-3 justify-end pt-6">
+                                    <button type="button" onclick="showScreen('dashboard')" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" id="save-client-btn" class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-gradient-to-r from-slate-900 to-slate-700 text-white rounded-lg border border-slate-200/20 shadow-sm transition-all duration-200 ease-out hover:shadow-lg hover:shadow-slate-900/25 hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                                        <i class="fas fa-save"></i>
+                                        <span>Save Client</span>
+                                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:animate-pulse"></div>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="client-firebase-email">Client Firebase Email / ID</label>
-                            <input 
-                                type="text" 
-                                id="client-firebase-email" 
-                                placeholder="firebase@client.com or firebase-user-id"
-                            >
-                            <span class="error" id="client-firebase-email-error"></span>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="showScreen('dashboard')">
-                                Cancel
-                            </button>
-                            <button type="submit" class="btn btn-primary" id="save-client-btn">
-                                <i class="fas fa-save"></i> Save
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Screen 4: Clients List -->
         <div id="clients-list-screen" class="screen">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Clients</h1>
-                    <button class="btn btn-primary" onclick="showScreen('add-client')">
-                        <i class="fas fa-plus"></i> Add Client
-                    </button>
-                </div>
-
-                <!-- Search -->
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input 
-                        type="text" 
-                        id="clients-search" 
-                        placeholder="Search by name, mobile, email..."
-                        oninput="searchClientsInList(this.value)"
-                    >
-                </div>
-
-                <!-- Clients Table -->
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table class="clients-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Mobile</th>
-                                    <th>Email</th>
-                                    <th>Admin Link</th>
-                                    <th>Firebase Email/ID</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clients-list-tbody">
-                                <!-- Dynamic content -->
-                            </tbody>
-                        </table>
+            <div class="min-h-screen bg-slate-50/50 pt-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-foreground">All Clients</h1>
+                            <p class="text-muted-foreground mt-2">Manage and view all client profiles</p>
+                        </div>
+                        <button onclick="showScreen('add-client')" class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-gradient-to-r from-slate-900 to-slate-700 text-white rounded-lg border border-slate-200/20 shadow-sm transition-all duration-200 ease-out hover:shadow-lg hover:shadow-slate-900/25 hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Client</span>
+                            <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:animate-pulse"></div>
+                        </button>
                     </div>
-                    <div id="clients-list-no-data" class="no-data" style="display: none;">
-                        <i class="fas fa-users"></i>
-                        <p>No clients found</p>
-                    </div>
-                </div>
 
-                <!-- Mobile Card View -->
-                <div class="mobile-card-view">
-                    <div id="clients-list-mobile-cards">
-                        <!-- Dynamic mobile cards -->
+                    <!-- Search -->
+                    <div class="relative mb-6 max-w-md">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
+                        <input 
+                            type="text" 
+                            id="clients-search" 
+                            placeholder="Search by name, mobile, email..."
+                            oninput="searchClientsInList(this.value)"
+                            class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
                     </div>
-                    <div id="clients-list-no-data-mobile" class="no-data" style="display: none;">
-                        <i class="fas fa-users"></i>
-                        <p>No clients found</p>
+
+                    <!-- Clients Table -->
+                    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                        <div class="relative w-full overflow-auto">
+                            <table class="w-full caption-bottom text-sm">
+                                <thead class="[&_tr]:border-b">
+                                    <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Name</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden md:table-cell">Mobile</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden lg:table-cell">Email</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden xl:table-cell">Admin Link</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden xl:table-cell">Firebase ID</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Status</th>
+                                        <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="[&_tr:last-child]:border-0" id="clients-list-tbody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="clients-list-no-data" class="flex flex-col items-center justify-center py-16 text-center" style="display: none;">
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+                                <i class="fas fa-users text-2xl text-muted-foreground"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground mb-2">No clients found</h3>
+                            <p class="text-muted-foreground max-w-sm">Try adjusting your search or add a new client to get started.</p>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="block md:hidden mt-6">
+                        <div id="clients-list-mobile-cards" class="space-y-4">
+                            <!-- Dynamic mobile cards -->
+                        </div>
+                        <div id="clients-list-no-data-mobile" class="flex flex-col items-center justify-center py-16 text-center" style="display: none;">
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+                                <i class="fas fa-users text-2xl text-muted-foreground"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-foreground mb-2">No clients found</h3>
+                            <p class="text-muted-foreground">Try adjusting your search or add a new client.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -315,66 +492,75 @@
 
         <!-- Screen 5: Client Details -->
         <div id="client-details-screen" class="screen">
-            <div class="container">
-                <div class="page-header">
-                    <h1>Client Details</h1>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary" onclick="showScreen('clients-list')">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </button>
-                        <button class="btn btn-primary" onclick="editCurrentClient()">
-                            <i class="fas fa-edit"></i> Edit Client
-                        </button>
+            <div class="min-h-screen bg-slate-50/50 pt-16">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-foreground">Client Details</h1>
+                            <p class="text-muted-foreground mt-2">View and manage client information</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="showScreen('clients-list')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <button onclick="editCurrentClient()" class="group relative inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-gradient-to-r from-slate-900 to-slate-700 text-white rounded-lg border border-slate-200/20 shadow-sm transition-all duration-200 ease-out hover:shadow-lg hover:shadow-slate-900/25 hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                                <i class="fas fa-edit"></i>
+                                <span>Edit Client</span>
+                                <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:animate-pulse"></div>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="details-container">
-                    <div class="details-card">
-                        <div class="details-header">
-                            <div class="client-avatar">
-                                <i class="fas fa-user"></i>
+                    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                        <div class="p-6">
+                            <div class="flex items-center space-x-4 mb-8">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                                    <i class="fas fa-user text-primary text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-foreground" id="details-client-name">-</h2>
+                                    <div class="mt-2" id="details-client-status-container">
+                                        <span id="details-client-status" class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium">-</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="client-basic-info">
-                                <h2 id="details-client-name">-</h2>
-                                <p id="details-client-status" class="status-badge">-</p>
+                            
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-muted-foreground">Mobile</label>
+                                    <p class="text-sm text-foreground" id="details-client-mobile">-</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-muted-foreground">Email</label>
+                                    <p class="text-sm text-foreground" id="details-client-email">-</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-muted-foreground">Admin Link</label>
+                                    <p class="text-sm text-foreground" id="details-client-admin-link">-</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-muted-foreground">Firebase Email / ID</label>
+                                    <p class="text-sm text-foreground" id="details-client-firebase-email">-</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-muted-foreground">Created At</label>
+                                    <p class="text-sm text-foreground" id="details-client-created">-</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-sm font-medium text-muted-foreground">Updated At</label>
+                                    <p class="text-sm text-foreground" id="details-client-updated">-</p>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="details-grid">
-                            <div class="detail-item">
-                                <label>Mobile</label>
-                                <p id="details-client-mobile">-</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3 justify-end pt-8 mt-8 border-t border-border">
+                                <button onclick="toggleClientStatus()" class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-yellow-500 text-white hover:bg-yellow-600 h-10 px-4 py-2">
+                                    <i class="fas fa-toggle-on"></i> 
+                                    <span id="toggle-status-text">Deactivate</span>
+                                </button>
+                                <button onclick="deleteCurrentClient()" class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2">
+                                    <i class="fas fa-trash"></i> Delete Client
+                                </button>
                             </div>
-                            <div class="detail-item">
-                                <label>Email</label>
-                                <p id="details-client-email">-</p>
-                            </div>
-                            <div class="detail-item">
-                                <label>Admin Link</label>
-                                <p id="details-client-admin-link">-</p>
-                            </div>
-                            <div class="detail-item">
-                                <label>Firebase Email / ID</label>
-                                <p id="details-client-firebase-email">-</p>
-                            </div>
-                            <div class="detail-item">
-                                <label>Created At</label>
-                                <p id="details-client-created">-</p>
-                            </div>
-                            <div class="detail-item">
-                                <label>Updated At</label>
-                                <p id="details-client-updated">-</p>
-                            </div>
-                        </div>
-                        
-                        <div class="details-actions">
-                            <button class="btn btn-warning" onclick="toggleClientStatus()">
-                                <i class="fas fa-toggle-on"></i> 
-                                <span id="toggle-status-text">Deactivate</span>
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteCurrentClient()">
-                                <i class="fas fa-trash"></i> Delete Client
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -464,6 +650,15 @@
         </div>
     </div>
 
+    <!-- Skiper UI utilities -->
+    <script src="skiper-utils.js"></script>
+    
+    <!-- Theme Toggle -->
+    <script src="theme-toggle.js"></script>
+    
+    <!-- Dashboard Animations -->
+    <script src="dashboard-animations.js"></script>
+    
     <!-- Firebase SDK -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="auth.js"></script>

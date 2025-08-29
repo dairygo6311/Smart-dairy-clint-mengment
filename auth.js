@@ -127,7 +127,7 @@ window.handleForgotPassword = async function() {
     
     try {
         await sendPasswordResetEmail(auth, email);
-        alert('Password reset email sent! Check your inbox.');
+        showNotification('Password reset email sent! Check your inbox.', 'success');
     } catch (error) {
         console.error('Password reset error:', error);
         
@@ -155,7 +155,7 @@ window.logout = async function() {
         // onAuthStateChanged will handle navigation
     } catch (error) {
         console.error('Logout error:', error);
-        alert('Failed to logout. Please try again.');
+        showNotification('Failed to logout. Please try again.', 'error');
     }
 };
 
@@ -168,3 +168,6 @@ export function getCurrentUser() {
 export function isAuthenticated() {
     return currentUser !== null;
 }
+
+// Expose isAuthenticated function globally for keyboard shortcuts
+window.isAuthenticated = isAuthenticated;
